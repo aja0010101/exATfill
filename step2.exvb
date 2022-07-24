@@ -1,0 +1,149 @@
+Sub afinda()
+Dim i, mark_a1 As Integer
+Dim biao, Sht As Worksheet
+Dim wbSource As Workbook
+Dim wbTarget As Workbook
+'Dim itm_h As Integer
+
+source_path_name = ActiveWorkbook.Path
+Set wbTarget = ThisWorkbook
+Set wbSource = Workbooks.Open(source_path_name & "\" & "DataTemp-ar" & "\" & "temp001.xlsx")
+wbSource.Sheets("temp001").Copy Before:=wbTarget.Worksheets(1)
+ActiveSheet.Name = "temp002"
+wbSource.Close
+
+
+Sheets("temp002").Range("c1") = "Rowis_value"
+Sheets("temp002").Range("d1") = "Oder No."
+Sheets("temp002").Range("e1") = "Key words"
+Sheets("temp002").Range("f1") = "Qty"
+Sheets("temp002").Range("g1") = "Amount"
+Sheets("temp002").Range("h1") = "Fac. quote"
+Sheets("temp002").Range("i1") = "Shipping_fee"
+Sheets("temp002").Range("j1") = "Other_cost"
+If Sheets("temp002").Range("a1") = "Oder No." Then
+    mark_a1 = 1
+Else
+    mark_a1 = 0
+End If
+For i = 2 To Sheets("temp002").Range("a65536").End(xlUp).Row
+    For Each biao In Sheets
+        If biao.Name <> "temp002" Then
+            biao.Select
+            If Sheets("temp002").Range("a" & i) <> "" Then
+                If mark_a1 = 1 Then
+                    Sheets("temp002").Range("c" & i) = findobj(Sheets("temp002").Range("a" & i))
+                Else
+                    Sheets("temp002").Range("c" & i) = findobj_p(Sheets("temp002").Range("a" & i))
+                End If
+
+                'itm_h = Sheets("temp002").Range("c" & i).Value
+                If Sheets("temp002").Range("c" & i) <> "no_find" Then
+                    Sheets("temp002").Range("d" & i) = biao.Range(finditm("Oder No.") & CInt(Sheets("temp002").Range("c" & i)))
+                    Sheets("temp002").Range("e" & i) = biao.Range(finditm("Key words") & CInt(Sheets("temp002").Range("c" & i)))
+                    Sheets("temp002").Range("f" & i) = biao.Range(finditm("Qty") & CInt(Sheets("temp002").Range("c" & i)))
+                    Sheets("temp002").Range("g" & i) = biao.Range(finditm("Amount") & CInt(Sheets("temp002").Range("c" & i)))
+                    Sheets("temp002").Range("h" & i) = biao.Range(finditm("Fac. quote") & CInt(Sheets("temp002").Range("c" & i)))
+                    Sheets("temp002").Range("i" & i) = biao.Range(finditm("Shipping_fee") & CInt(Sheets("temp002").Range("c" & i)))
+                    Sheets("temp002").Range("j" & i) = biao.Range(finditm("Other_cost") & CInt(Sheets("temp002").Range("c" & i)))
+                    If Sheets("temp002").Range("h" & i) <> Sheets("temp002").Range("b" & i) Then
+                        Sheets("temp002").Range("h" & i).EntireRow.Interior.ColorIndex = 6
+                    End If
+                    If HaveNumbers(Sheets("temp002").Range("d" & i)) = False Then
+                        Sheets("temp002").Range("d" & i) = Sheets("temp002").Range("e" & i)
+                    End If
+                    If Sheets("temp002").Range("i" & i) = "" Then
+                        If Sheets("temp002").Range("f" & i) > 500 Then
+                            Sheets("temp002").Range("i" & i) = "数量大手动确认"
+                        ElseIf Sheets("temp002").Range("f" & i) > 200 And Sheets("temp002").Range("f" & i) <= 500 Then
+                            Sheets("temp002").Range("i" & i) = 500
+                        ElseIf Sheets("temp002").Range("f" & i) > 100 And Sheets("temp002").Range("f" & i) <= 200 Then
+                            Sheets("temp002").Range("i" & i) = 300
+                        ElseIf Sheets("temp002").Range("f" & i) > 50 And Sheets("temp002").Range("f" & i) <= 100 Then
+                            Sheets("temp002").Range("i" & i) = 200
+						ElseIf Sheets("temp002").Range("f" & i) <= 50 Then	
+							Sheets("temp002").Range("i" & i) = 185
+                        Else
+                            Sheets("temp002").Range("i" & i) = "请手动填写"
+                        End If
+
+                    End If
+                    Exit For
+                End If
+            End If
+        End If
+    Next biao
+    If Sheets("temp002").Range("c" & i) = "no_find" Then
+        Sheets("temp002").Range("c" & i).EntireRow.Interior.ColorIndex = 3
+    End If
+Next
+source_window_name = ActiveWindow.Caption
+target_path = source_path_name & "\" & "DataTemp-ar"
+Application.DisplayAlerts = False
+ActiveWorkbook.Sheets("temp002").Copy
+ActiveWorkbook.SaveAs target_path & "\" & ActiveSheet.Name
+ActiveWorkbook.Close
+Windows(source_window_name).Activate
+ActiveWorkbook.Sheets("temp002").Delete
+MsgBox "数据提取完成，请在DataTemp-ar文件夹下对temp002文件数据进行手动修正。"
+Application.DisplayAlerts = True
+
+End Sub
+
+'查找单元格匹配，需要修改
+Function findobj(obj_str As String)
+    Dim obj_ge As Range
+    
+    'Set obj_ge = Cells.Find(obj_str)
+    Set obj_ge = Cells.Find(What:=obj_str, LookAt:=xlWhole)
+    If obj_ge Is Nothing Then
+        findobj = "no_find"
+    Else
+        findobj = Split(obj_ge.Address, "$")(2)
+    End If
+
+End Function
+
+Function findobj_p(obj_str As String)
+    Dim obj_ge As Range
+    
+    'Set obj_ge = Cells.Find(obj_str)
+    Set obj_ge = Cells.Find(What:=obj_str, LookAt:=xlPart)
+    If obj_ge Is Nothing Then
+        findobj_p = "no_find"
+    Else
+        findobj_p = Split(obj_ge.Address, "$")(2)
+    End If
+
+End Function
+
+
+
+Function finditm(obj_str As String)
+    Dim itm_ge As Range
+    
+    Set itm_ge = Range("a1:v5").Find(What:=obj_str, LookAt:=xlWhole)
+    If itm_ge Is Nothing Then
+        finditm = "AAA"
+    Else
+        finditm = Split(itm_ge.Address, "$")(1)
+    End If
+
+End Function
+
+
+Function HaveNumbers(oRng As Range) As Boolean
+     Dim bHaveNumbers As Boolean, i As Long
+     bHaveNumbers = False
+     For i = 1 To Len(oRng.Text)
+         If IsNumeric(Mid(oRng.Text, i, 1)) Then
+             bHaveNumbers = True
+             Exit For
+         End If
+     Next
+     HaveNumbers = bHaveNumbers
+End Function
+
+
+
+
