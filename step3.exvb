@@ -1,0 +1,38 @@
+Sub afill()
+Dim i As Integer
+Dim wbSource As Workbook
+Dim wbTarget As Workbook
+
+source_path_name = ActiveWorkbook.Path
+Set wbTarget = ThisWorkbook
+Set wbSource = Workbooks.Open(source_path_name & "\" & "DataTemp-ar" & "\" & "temp002.xlsx")
+wbSource.Sheets("temp002").Copy Before:=wbTarget.Worksheets(1)
+ActiveSheet.Name = "temp003"
+wbSource.Close
+If Range("B1") <> "价格" And Range("D1") <> "Oder No." And Range("H1") <> "Fac. quote" Then
+    MsgBox "temp002表结构与模板不一致，请调整。"
+Else
+    'For i = 2 To Range("a65536").End(xlUp).Row
+    If Sheets(2).Range("c7") <> "总计" And Sheets(2).Range("c2") <> "货值" And Sheets(2).Range("e3") <> "运费" Then
+        MsgBox "利润表结构与模板不一致，请调整。"
+    Else
+        For i = 2 To Sheets("temp003").Range("a65536").End(xlUp).Row
+            Sheets(2).Range("B" & 6 * i - 10) = Sheets("temp003").Range("d" & i)
+            Sheets(2).Range("B" & 6 * i - 10).Offset(0, 4).Offset(5, -2) = Sheets("temp003").Range("g" & i)
+            Sheets(2).Range("B" & 6 * i - 10).Offset(0, 4) = Sheets("temp003").Range("h" & i)
+            If Sheets("temp003").Range("i" & i) <> "运费未知" Then
+                Sheets(2).Range("B" & 6 * i - 10).Offset(0, 4).Offset(1, 0) = Sheets("temp003").Range("i" & i)
+            End If
+            If Sheets("temp003").Range("j" & i) <> "" Then
+                Sheets(2).Range("B" & 6 * i - 10).Offset(0, 4).Offset(4, 0) = Sheets("temp003").Range("j" & i)
+            End If
+        Next
+    End If
+End If
+Application.DisplayAlerts = False
+Sheets("temp003").Delete
+ActiveWorkbook.Save
+MsgBox "报告领导，报表已完成，请检查。"
+Application.DisplayAlerts = True
+End Sub
+
