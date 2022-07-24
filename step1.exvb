@@ -1,0 +1,55 @@
+Sub tiqu()
+Dim rns_i, rns_p, rns_k As Range
+Dim i As Integer
+Dim sResult As String
+
+Range("a1:l7").UnMerge
+Set rns_i = Range("a1:l7").Find("Oder No.")
+Set rns_k = Range("a1:l7").Find("开单号")
+Set rns_p = Range("a1:l7").Find("价格")
+If rns_p Is Nothing Then
+    MsgBox "未匹配到[价格]!"
+ElseIf Not rns_i Is Nothing And rns_k Is Nothing Then
+    i = Cells("65536", rns_i.Column).End(xlUp).Row - rns_i.Row + 1
+    With Sheets.Add(after:=Sheets(Sheets.Count))
+        .Name = "temp001"
+        Worksheets(1).Select
+        Worksheets(1).Cells(rns_i.Row, rns_i.Column).Resize(i, 1).Copy .Range("a1")
+        Worksheets(1).Cells(rns_i.Row, rns_p.Column).Resize(i, 1).Copy .Range("b1")
+    End With
+ElseIf Not rns_k Is Nothing And rns_i Is Nothing Then
+    i = Cells("65536", rns_k.Column).End(xlUp).Row - rns_k.Row + 1
+    With Sheets.Add(after:=Sheets(Sheets.Count))
+        .Name = "temp001"
+        Worksheets(1).Select
+        Worksheets(1).Cells(rns_k.Row, rns_k.Column).Resize(i, 1).Copy .Range("a1")
+        Worksheets(1).Cells(rns_k.Row, rns_p.Column).Resize(i, 1).Copy .Range("b1")
+    End With
+ElseIf Not rns_i Is Nothing And Not rns_k Is Nothing Then
+    i = Cells("65536", rns_i.Column).End(xlUp).Row - rns_i.Row + 1
+    With Sheets.Add(after:=Sheets(Sheets.Count))
+        .Name = "temp001"
+        Worksheets(1).Select
+        Worksheets(1).Cells(rns_i.Row, rns_i.Column).Resize(i, 1).Copy .Range("a1")
+        Worksheets(1).Cells(rns_i.Row, rns_p.Column).Resize(i, 1).Copy .Range("b1")
+    End With
+Else
+    MsgBox "未找到【Oder No.】或【开单号】列"
+End If
+
+source_window_name = ActiveWindow.Caption
+source_path_name = ActiveWorkbook.Path
+target_path = source_path_name & "\" & "DataTemp-ar"
+sResult = Dir(target_path, vbDirectory)
+If Len(sResult) = 0 Then
+    MkDir target_path
+End If
+Application.DisplayAlerts = False
+ActiveWorkbook.Sheets("temp001").Copy
+ActiveWorkbook.SaveAs target_path & "\" & ActiveSheet.Name
+ActiveWorkbook.Close
+Windows(source_window_name).Activate
+ActiveWorkbook.Sheets("temp001").Delete
+MsgBox "数据提取完成，请在DataTemp-ar文件夹下对temp001文件数据进行人工修正。"
+Application.DisplayAlerts = True
+End Sub
