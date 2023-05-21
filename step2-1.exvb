@@ -97,7 +97,7 @@ Function findobj(obj_str As String)
     Dim obj_ge As Range
     
     'Set obj_ge = Cells.Find(obj_str)
-    Set obj_ge = Cells.Find(What:=obj_str, LookAt:=xlWhole)
+    Set obj_ge = Cells.Find(What:=obj_str, LookIn:=xlValues, LookAt:=xlPart)
     If obj_ge Is Nothing Then
         findobj = "no_find"
     Else
@@ -110,7 +110,7 @@ Function findobj_p(obj_str As String)
     Dim obj_ge As Range
     
     'Set obj_ge = Cells.Find(obj_str)
-    Set obj_ge = Cells.Find(What:=obj_str, LookAt:=xlPart)
+    Set obj_ge = Cells.Find(What:=obj_str, LookAt:=xlWhole)
     If obj_ge Is Nothing Then
         findobj_p = "no_find"
     Else
