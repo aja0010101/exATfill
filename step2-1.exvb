@@ -21,7 +21,8 @@ Sheets("temp002").Range("g1") = "Amount"
 Sheets("temp002").Range("h1") = "Fac. quote"
 Sheets("temp002").Range("i1") = "Shipping_fee"
 Sheets("temp002").Range("j1") = "Other_cost"
-If Sheets("temp002").Range("a1") = "Oder No." Then
+Sheets("temp002").Range("k1") = "Remark-N-o"
+If Sheets("temp002").Range("a1") = "Remark-N-o" Then
     mark_a1 = 1
 Else
     mark_a1 = 0
@@ -46,6 +47,7 @@ For i = 2 To Sheets("temp002").Range("a65536").End(xlUp).Row
                     Sheets("temp002").Range("h" & i) = biao.Range(finditm("Fac. quote") & CInt(Sheets("temp002").Range("c" & i)))
                     Sheets("temp002").Range("i" & i) = biao.Range(finditm("Shipping_fee") & CInt(Sheets("temp002").Range("c" & i)))
                     Sheets("temp002").Range("j" & i) = biao.Range(finditm("Other_cost") & CInt(Sheets("temp002").Range("c" & i)))
+		    Sheets("temp002").Range("k" & i) = biao.Range(finditm("Remark-N-o") & CInt(Sheets("temp002").Range("c" & i)))
                     If Sheets("temp002").Range("h" & i) <> Sheets("temp002").Range("b" & i) Then
                         Sheets("temp002").Range("h" & i).EntireRow.Interior.ColorIndex = 6
                     End If
